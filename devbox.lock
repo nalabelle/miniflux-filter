@@ -38,10 +38,18 @@
             }
           ],
           "store_path": "/nix/store/4hbbb0r290fg4ialgkcz7ic91sb8xal3-libiconv-109"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "path": "/tmp/containerbase/cache/nix/store/bxsh852vxfcfvczs31zq26gddksw0qpw-glibc-iconv-2.40",
+              "default": true
+            }
+          ]
         }
       }
     },
-    "nodejs@latest": {
+    "nodejs@24.1.0": {
       "last_modified": "2025-05-29T08:12:58Z",
       "plugin_version": "0.0.2",
       "resolved": "github:NixOS/nixpkgs/3866ad91cfc172f08a6839def503d8fc2923c603#nodejs_24",
