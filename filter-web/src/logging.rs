@@ -49,14 +49,7 @@ impl WebLogCollector {
 
     pub fn get_recent_logs(&self, limit: usize) -> Vec<LogEntry> {
         let logs = self.logs.lock().unwrap();
-        logs.iter()
-            .rev()
-            .take(limit)
-            .cloned()
-            .collect::<Vec<_>>()
-            .into_iter()
-            .rev()
-            .collect()
+        logs.iter().rev().take(limit).cloned().collect()
     }
 
     pub fn get_logs_for_feed(&self, feed_id: u64, limit: Option<usize>) -> Vec<LogEntry> {
@@ -68,16 +61,9 @@ impl WebLogCollector {
             .collect();
 
         if let Some(limit) = limit {
-            filtered
-                .into_iter()
-                .rev()
-                .take(limit)
-                .collect::<Vec<_>>()
-                .into_iter()
-                .rev()
-                .collect()
+            filtered.into_iter().rev().take(limit).collect()
         } else {
-            filtered
+            filtered.into_iter().rev().collect()
         }
     }
 

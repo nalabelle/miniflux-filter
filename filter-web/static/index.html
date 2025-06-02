@@ -44,6 +44,10 @@
         <div class="section-header">
           <h2>Recent Activity Logs</h2>
           <div class="filter-controls">
+            <label class="checkbox-label">
+              <input type="checkbox" id="autoRefreshLogs" checked />
+              Auto-refresh (30s)
+            </label>
             <button class="button button-secondary" onclick="refreshLogs()">Refresh</button>
             <button class="button button-danger" onclick="clearAllLogs()">Clear Logs</button>
           </div>

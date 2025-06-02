@@ -17,7 +17,7 @@ async fn main() -> Result<()> {
     let cli = Cli::parse_args();
 
     // Initialize web logging with tracing
-    let (subscriber, log_collector) = setup_web_logging(1000, &cli.log_level);
+    let (subscriber, log_collector) = setup_web_logging(50, &cli.log_level);
     tracing::subscriber::set_global_default(subscriber).expect("Failed to set tracing subscriber");
 
     info!("Starting miniflux-filter v{}", env!("CARGO_PKG_VERSION"));

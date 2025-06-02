@@ -119,22 +119,8 @@ function renderCombinedList() {
 
 // Actions
 async function createRules(feedId, feedName) {
-  try {
-    const response = await createRuleSet({
-      feed_id: feedId,
-      feed_name: feedName,
-    });
-
-    if (response.success) {
-      alert("Rule set created successfully!");
-      loadCombinedData();
-      loadStats();
-    } else {
-      alert("Failed to create rule set: " + response.error);
-    }
-  } catch (error) {
-    alert("Failed to create rule set: " + error.message);
-  }
+  // Navigate directly to the edit page for this feed with 'new' parameter
+  window.location.href = `edit.html?feed=${feedId}&new=true`;
 }
 
 async function deleteRules(feedId) {
@@ -321,8 +307,48 @@ function extractFeedIdFromItem(feedItem) {
   return null;
 }
 
+// Auto-refresh functionality
+let autoRefreshInterval = null;
+
+function startAutoRefresh() {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval);
+  }
+
+  const autoRefreshCheckbox = document.getElementById("autoRefreshLogs");
+  if (autoRefreshCheckbox && autoRefreshCheckbox.checked) {
+    autoRefreshInterval = setInterval(() => {
+      loadLogs();
+    }, 30000); // 30 seconds
+  }
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval);
+    autoRefreshInterval = null;
+  }
+}
+
 // Initialize logs when DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
   // Load logs after a short delay to let the main content load first
   setTimeout(loadLogs, 1000);
+
+  // Set up auto-refresh functionality
+  const autoRefreshCheckbox = document.getElementById("autoRefreshLogs");
+  if (autoRefreshCheckbox) {
+    autoRefreshCheckbox.addEventListener("change", function () {
+      if (this.checked) {
+        startAutoRefresh();
+      } else {
+        stopAutoRefresh();
+      }
+    });
+
+    // Start auto-refresh if checkbox is checked by default
+    if (autoRefreshCheckbox.checked) {
+      startAutoRefresh();
+    }
+  }
 });

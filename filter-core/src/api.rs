@@ -5,6 +5,15 @@ use tracing::{debug, info};
 
 use crate::config::Config;
 
+fn deserialize_null_default<'de, D, T>(deserializer: D) -> Result<T, D::Error>
+where
+    T: Default + serde::Deserialize<'de>,
+    D: serde::Deserializer<'de>,
+{
+    let opt = Option::deserialize(deserializer)?;
+    Ok(opt.unwrap_or_default())
+}
+
 #[derive(Debug, Clone)]
 pub struct MinifluxClient {
     client: Client,
@@ -15,15 +24,19 @@ pub struct MinifluxClient {
 #[derive(Debug, Deserialize)]
 pub struct Entry {
     pub id: u64,
+    #[serde(default)]
     pub title: String,
+    #[serde(default)]
     pub url: String,
+    #[serde(default)]
     pub content: String,
+    #[serde(default)]
     pub author: String,
     pub status: String,
     pub feed: Feed,
     pub published_at: String,
     pub created_at: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "deserialize_null_default")]
     pub tags: Vec<String>,
 }
 
@@ -100,10 +113,19 @@ impl MinifluxClient {
             anyhow::bail!("Failed to fetch unread entries: {} - {}", status, text);
         }
 
-        let entries_response: EntriesResponse = response
-            .json()
+        let response_text = response
+            .text()
             .await
-            .context("Failed to parse entries response")?;
+            .context("Failed to read response body")?;
+
+        let entries_response: EntriesResponse = match serde_json::from_str(&response_text) {
+            Ok(response) => response,
+            Err(e) => {
+                debug!("Failed to parse entries response. Error: {}", e);
+                debug!("Raw response body: {}", response_text);
+                anyhow::bail!("Failed to parse entries response: {}", e);
+            }
+        };
 
         info!("Fetched {} unread entries", entries_response.entries.len());
         Ok(entries_response.entries)
@@ -136,10 +158,26 @@ impl MinifluxClient {
             );
         }
 
-        let entries_response: EntriesResponse = response
-            .json()
+        let response_text = response
+            .text()
             .await
-            .context("Failed to parse entries response")?;
+            .context("Failed to read response body")?;
+
+        let entries_response: EntriesResponse = match serde_json::from_str(&response_text) {
+            Ok(response) => response,
+            Err(e) => {
+                debug!(
+                    "Failed to parse entries response for feed {}. Error: {}",
+                    feed_id, e
+                );
+                debug!("Raw response body: {}", response_text);
+                anyhow::bail!(
+                    "Failed to parse entries response for feed {}: {}",
+                    feed_id,
+                    e
+                );
+            }
+        };
 
         debug!(
             "Fetched {} unread entries for feed {}",
@@ -173,7 +211,7 @@ impl MinifluxClient {
             .await
             .context("Failed to parse feeds response")?;
 
-        info!("Fetched {} feeds", feeds.len());
+        debug!("Fetched {} feeds", feeds.len());
         Ok(feeds)
     }
 

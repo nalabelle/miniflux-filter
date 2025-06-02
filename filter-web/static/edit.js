@@ -6,11 +6,13 @@
 // Global variables
 let currentRuleSet = null;
 let currentFeedId = null;
+let isNewRuleSet = false;
 
 // Initialize the page
 document.addEventListener("DOMContentLoaded", function () {
   const urlParams = new URLSearchParams(window.location.search);
   const feedId = urlParams.get("feed");
+  const isNew = urlParams.get("new") === "true";
 
   if (!feedId) {
     showError("No feed ID provided");
@@ -18,7 +20,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   currentFeedId = parseInt(feedId);
-  loadRuleSet(currentFeedId);
+
+  if (isNew) {
+    // Create a new rule set in memory without saving to server
+    createNewRuleSet(currentFeedId);
+  } else {
+    loadRuleSet(currentFeedId);
+  }
 });
 
 // API functions
@@ -34,6 +42,36 @@ async function putAPI(endpoint, data) {
     body: JSON.stringify(data),
   });
   return await response.json();
+}
+
+async function postAPI(endpoint, data) {
+  const response = await fetch(`/api${endpoint}`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(data),
+  });
+  return await response.json();
+}
+
+// Create a new rule set in memory
+function createNewRuleSet(feedId) {
+  const loadingEl = document.getElementById("loading");
+  const errorEl = document.getElementById("error");
+  const editorEl = document.getElementById("editor");
+
+  if (loadingEl) loadingEl.style.display = "none";
+  if (errorEl) errorEl.style.display = "none";
+
+  // Create a default rule set structure
+  currentRuleSet = {
+    feed_id: feedId,
+    enabled: true,
+    rules: [],
+  };
+
+  isNewRuleSet = true;
+  populateEditor(currentRuleSet);
+  if (editorEl) editorEl.style.display = "block";
 }
 
 // Load rule set
@@ -248,12 +286,20 @@ async function saveRules() {
       rules,
     };
 
-    // Save to server
-    const response = await putAPI(`/rules/${currentFeedId}`, ruleSet);
+    // Save to server - use POST for new rule sets, PUT for existing ones
+    let response;
+    if (isNewRuleSet) {
+      response = await postAPI(`/rules`, ruleSet);
+      if (response.success) {
+        isNewRuleSet = false; // Mark as no longer new after successful save
+      }
+    } else {
+      response = await putAPI(`/rules/${currentFeedId}`, ruleSet);
+    }
 
     if (response.success) {
       alert("Rules saved successfully!");
-      window.location.href = "./";
+      // Stay on the edit page - no redirect
     } else {
       alert("Failed to save rules: " + response.error);
     }

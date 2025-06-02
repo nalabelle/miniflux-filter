@@ -553,7 +553,7 @@ async fn get_logs(
 ) -> Json<ApiResponse<Vec<crate::logging::LogEntry>>> {
     match &state.log_collector {
         Some(collector) => {
-            let logs = collector.get_recent_logs(100); // Get last 100 logs
+            let logs = collector.get_recent_logs(50); // Get last 50 logs
             Json(ApiResponse {
                 success: true,
                 data: Some(logs),
