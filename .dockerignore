@@ -17,7 +17,6 @@ playwright-report/
 
 # Build artifacts
 target/
-Cargo.lock
 
 # Node.js (for tests)
 node_modules/

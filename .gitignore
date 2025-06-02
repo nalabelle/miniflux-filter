@@ -3,6 +3,3 @@
 
 .env
 *.env
-
-Cargo.lock
-devbox.lock
