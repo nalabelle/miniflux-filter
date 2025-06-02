@@ -1,10 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.2/.schema/devbox.schema.json",
   "packages": [
-    "rustup@latest",
+    "rustup@1.28.2",
     "libiconv@latest",
     "nodejs@24.1.0",
-    "playwright-test@latest"
+    "playwright-test@1.52.0"
   ],
   "env": {
     "DEVBOX_COREPACK_ENABLED": "true"
