@@ -9,8 +9,7 @@ use crate::api::Entry;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RuleSet {
     pub feed_id: u64,
-    pub feed_name: Option<String>,
-    pub enabled: Option<bool>,
+    pub enabled: bool,
     pub rules: Vec<Rule>,
 }
 
@@ -69,7 +68,7 @@ impl RuleSet {
 
         rule_set.validate()?;
 
-        info!(
+        debug!(
             "Loaded rule set for feed {} with {} rules",
             rule_set.feed_id,
             rule_set.rules.len()
@@ -141,7 +140,7 @@ impl RuleSet {
 
     /// Check if the rule set is enabled
     pub fn is_enabled(&self) -> bool {
-        self.enabled.unwrap_or(true)
+        self.enabled
     }
 
     /// Evaluate all rules against an entry and return matching rule indices
@@ -272,7 +271,7 @@ pub fn load_rule_sets_from_dir<P: AsRef<Path>>(dir_path: P) -> Result<Vec<RuleSe
         }
     }
 
-    info!(
+    debug!(
         "Loaded {} rule sets from {}",
         rule_sets.len(),
         dir_path.display()
@@ -289,8 +288,7 @@ mod tests {
     fn test_rule_evaluation() {
         let rule_set = RuleSet {
             feed_id: 123,
-            feed_name: Some("Test Feed".to_string()),
-            enabled: Some(true),
+            enabled: true,
             rules: vec![Rule {
                 action: Action::MarkRead,
                 conditions: vec![Condition {
@@ -327,8 +325,7 @@ mod tests {
     fn test_disabled_rule_set() {
         let rule_set = RuleSet {
             feed_id: 123,
-            feed_name: Some("Test Feed".to_string()),
-            enabled: Some(false),
+            enabled: false,
             rules: vec![Rule {
                 action: Action::MarkRead,
                 conditions: vec![Condition {
@@ -365,8 +362,7 @@ mod tests {
     fn test_tag_evaluation() {
         let rule_set = RuleSet {
             feed_id: 123,
-            feed_name: Some("Test Feed".to_string()),
-            enabled: Some(true),
+            enabled: true,
             rules: vec![Rule {
                 action: Action::MarkRead,
                 conditions: vec![Condition {

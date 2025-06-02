@@ -175,3 +175,154 @@ document.addEventListener("DOMContentLoaded", function () {
   // Add event listener for filter toggle
   document.getElementById("filterWithRules").addEventListener("change", renderCombinedList);
 });
+
+// Load and display logs
+async function loadLogs() {
+  try {
+    const logsLoading = document.getElementById("logsLoading");
+    const logsError = document.getElementById("logsError");
+    const logsList = document.getElementById("logsList");
+
+    logsLoading.style.display = "block";
+    logsError.style.display = "none";
+    logsList.style.display = "none";
+
+    const response = await fetchLogs();
+
+    logsLoading.style.display = "none";
+
+    if (!response.success) {
+      logsError.textContent = response.error || "Failed to load logs";
+      logsError.style.display = "block";
+      return;
+    }
+
+    const logs = response.data || [];
+    renderLogs(logs);
+  } catch (error) {
+    console.error("Failed to load logs:", error);
+    document.getElementById("logsError").textContent = "Failed to load logs";
+    document.getElementById("logsError").style.display = "block";
+    document.getElementById("logsLoading").style.display = "none";
+  }
+}
+
+// Render logs in the UI
+function renderLogs(logs) {
+  const logsList = document.getElementById("logsList");
+  logsList.innerHTML = "";
+
+  if (logs.length === 0) {
+    logsList.innerHTML = '<div class="no-logs">No logs available</div>';
+    logsList.style.display = "block";
+    return;
+  }
+
+  logs.forEach((log) => {
+    const logItem = document.createElement("div");
+    logItem.className = `log-item log-${log.level.toLowerCase()}`;
+
+    const timestamp = new Date(log.timestamp).toLocaleString();
+    const feedInfo = log.feed_id ? ` [Feed ${log.feed_id}]` : "";
+    const entryInfo = log.entry_title ? ` - "${escapeHtml(log.entry_title)}"` : "";
+
+    logItem.innerHTML = `
+      <div class="log-header">
+        <span class="log-timestamp">${timestamp}</span>
+        <span class="log-level">${log.level}</span>
+        <span class="log-target">${log.target}${feedInfo}</span>
+      </div>
+      <div class="log-message">${escapeHtml(log.message)}${entryInfo}</div>
+    `;
+
+    logsList.appendChild(logItem);
+  });
+
+  logsList.style.display = "block";
+}
+
+// Refresh logs
+async function refreshLogs() {
+  await loadLogs();
+}
+
+// Clear all logs
+async function clearAllLogs() {
+  if (!confirm("Are you sure you want to clear all logs?")) {
+    return;
+  }
+
+  try {
+    const response = await clearLogs();
+
+    if (response.success) {
+      alert("Logs cleared successfully!");
+      loadLogs();
+    } else {
+      alert("Failed to clear logs: " + response.error);
+    }
+  } catch (error) {
+    alert("Failed to clear logs: " + error.message);
+  }
+}
+
+// Add execute filter functionality to feed items
+function addExecuteButton(feedId, feedItem) {
+  const executeButton = document.createElement("button");
+  executeButton.className = "button button-primary";
+  executeButton.textContent = "Execute Filter";
+  executeButton.onclick = () => executeFilterForFeed(feedId);
+
+  const buttonContainer = feedItem.querySelector("div:last-child");
+  buttonContainer.appendChild(executeButton);
+}
+
+// Execute filter for a specific feed
+async function executeFilterForFeed(feedId) {
+  try {
+    const response = await executeFilter(feedId);
+
+    if (response.success) {
+      const result = response.data;
+      alert(`Filter executed successfully!\n${result.message}`);
+      // Refresh logs to show the execution results
+      loadLogs();
+    } else {
+      alert("Failed to execute filter: " + response.error);
+    }
+  } catch (error) {
+    alert("Failed to execute filter: " + error.message);
+  }
+}
+
+// Update the renderCombinedList function to include execute buttons
+const originalRenderCombinedList = renderCombinedList;
+renderCombinedList = function () {
+  originalRenderCombinedList();
+
+  // Add execute buttons to feeds with rules
+  const feedItems = document.querySelectorAll(".feed-item.has-rules");
+  feedItems.forEach((feedItem) => {
+    const feedId = extractFeedIdFromItem(feedItem);
+    if (feedId) {
+      addExecuteButton(feedId, feedItem);
+    }
+  });
+};
+
+// Helper function to extract feed ID from feed item
+function extractFeedIdFromItem(feedItem) {
+  const editButton = feedItem.querySelector('button[onclick*="editRules"]');
+  if (editButton) {
+    const onclickAttr = editButton.getAttribute("onclick");
+    const match = onclickAttr.match(/editRules\((\d+)\)/);
+    return match ? parseInt(match[1]) : null;
+  }
+  return null;
+}
+
+// Initialize logs when DOM is loaded
+document.addEventListener("DOMContentLoaded", function () {
+  // Load logs after a short delay to let the main content load first
+  setTimeout(loadLogs, 1000);
+});

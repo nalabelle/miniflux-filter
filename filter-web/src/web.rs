@@ -2,7 +2,7 @@ use anyhow::Result;
 use axum::{
     Router,
     extract::{Path, State},
-    http::{header, StatusCode},
+    http::{StatusCode, header},
     response::{Html, Json, Response},
     routing::{delete, get, post, put},
 };
@@ -20,6 +20,7 @@ use filter_core::rules::{RuleSet, load_rule_sets_from_dir};
 pub struct WebState {
     pub rules_dir: String,
     pub miniflux_client: MinifluxClient,
+    pub log_collector: Option<crate::logging::WebLogCollector>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -41,17 +42,18 @@ pub struct FeedInfo {
 #[derive(Deserialize)]
 pub struct CreateRuleSetRequest {
     pub feed_id: u64,
-    pub feed_name: Option<String>,
 }
 
 pub async fn start_web_server(
     rules_dir: String,
     miniflux_client: MinifluxClient,
     port: u16,
+    log_collector: Option<crate::logging::WebLogCollector>,
 ) -> Result<()> {
     let state = WebState {
         rules_dir,
         miniflux_client,
+        log_collector,
     };
 
     let app = Router::new()
@@ -67,7 +69,12 @@ pub async fn start_web_server(
         .route("/api/rules/{feed_id}", put(update_rule_set))
         .route("/api/rules/{feed_id}", delete(delete_rule_set))
         .route("/api/feeds", get(list_feeds))
+        .route("/api/feeds/{feed_id}", get(get_feed))
         .route("/api/stats", get(get_stats))
+        .route("/api/execute/{feed_id}", post(execute_filter))
+        .route("/api/logs", get(get_logs))
+        .route("/api/logs/{feed_id}", get(get_logs_for_feed))
+        .route("/api/logs", delete(clear_logs))
         .layer(ServiceBuilder::new().layer(CorsLayer::permissive()))
         .with_state(Arc::new(state));
 
@@ -180,8 +187,7 @@ async fn create_rule_set(
 ) -> Json<ApiResponse<String>> {
     let rule_set = RuleSet {
         feed_id: request.feed_id,
-        feed_name: request.feed_name,
-        enabled: Some(true),
+        enabled: true,
         rules: Vec::new(),
     };
 
@@ -270,35 +276,30 @@ async fn delete_rule_set(
         }
     };
 
-    for entry in dir_entries {
-        if let Ok(entry) = entry {
-            let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("toml") {
-                // Try to parse this TOML file to see if it matches our feed_id
-                if let Ok(content) = std::fs::read_to_string(&path) {
-                    if let Ok(rule_set) = toml::from_str::<RuleSet>(&content) {
-                        if rule_set.feed_id == feed_id {
-                            // This is the file we want to delete
-                            match std::fs::remove_file(&path) {
-                                Ok(_) => {
-                                    info!("Deleted rule set for feed {} from {:?}", feed_id, path);
-                                    return Json(ApiResponse {
-                                        success: true,
-                                        data: Some(format!(
-                                            "Rule set deleted for feed {}",
-                                            feed_id
-                                        )),
-                                        error: None,
-                                    });
-                                }
-                                Err(e) => {
-                                    error!("Failed to delete rule file {:?}: {}", path, e);
-                                    return Json(ApiResponse {
-                                        success: false,
-                                        data: None,
-                                        error: Some(format!("Failed to delete rule file: {}", e)),
-                                    });
-                                }
+    for entry in dir_entries.flatten() {
+        let path = entry.path();
+        if path.extension().and_then(|s| s.to_str()) == Some("toml") {
+            // Try to parse this TOML file to see if it matches our feed_id
+            if let Ok(content) = std::fs::read_to_string(&path) {
+                if let Ok(rule_set) = toml::from_str::<RuleSet>(&content) {
+                    if rule_set.feed_id == feed_id {
+                        // This is the file we want to delete
+                        match std::fs::remove_file(&path) {
+                            Ok(_) => {
+                                info!("Deleted rule set for feed {} from {:?}", feed_id, path);
+                                return Json(ApiResponse {
+                                    success: true,
+                                    data: Some(format!("Rule set deleted for feed {}", feed_id)),
+                                    error: None,
+                                });
+                            }
+                            Err(e) => {
+                                error!("Failed to delete rule file {:?}: {}", path, e);
+                                return Json(ApiResponse {
+                                    success: false,
+                                    data: None,
+                                    error: Some(format!("Failed to delete rule file: {}", e)),
+                                });
                             }
                         }
                     }
@@ -353,6 +354,56 @@ async fn list_feeds(State(state): State<Arc<WebState>>) -> Json<ApiResponse<Vec<
     })
 }
 
+async fn get_feed(
+    Path(feed_id): Path<u64>,
+    State(state): State<Arc<WebState>>,
+) -> Json<ApiResponse<FeedInfo>> {
+    // Get feeds from Miniflux API
+    let feeds_result = state.miniflux_client.get_feeds().await;
+
+    let feeds = match feeds_result {
+        Ok(feeds) => feeds,
+        Err(e) => {
+            error!("Failed to fetch feeds from Miniflux: {}", e);
+            return Json(ApiResponse {
+                success: false,
+                data: None,
+                error: Some(format!("Failed to fetch feeds: {}", e)),
+            });
+        }
+    };
+
+    // Find the specific feed
+    let feed = feeds.into_iter().find(|f| f.id == feed_id);
+
+    match feed {
+        Some(feed) => {
+            // Check if this feed has rules
+            let rule_sets = load_rule_sets_from_dir(&state.rules_dir).unwrap_or_default();
+            let has_rules = rule_sets.iter().any(|rs| rs.feed_id == feed_id);
+
+            let feed_info = FeedInfo {
+                id: feed.id,
+                title: feed.title,
+                site_url: feed.site_url,
+                feed_url: feed.feed_url,
+                has_rules,
+            };
+
+            Json(ApiResponse {
+                success: true,
+                data: Some(feed_info),
+                error: None,
+            })
+        }
+        None => Json(ApiResponse {
+            success: false,
+            data: None,
+            error: Some(format!("Feed with ID {} not found", feed_id)),
+        }),
+    }
+}
+
 async fn get_stats(State(state): State<Arc<WebState>>) -> Json<ApiResponse<serde_json::Value>> {
     let rule_sets = load_rule_sets_from_dir(&state.rules_dir).unwrap_or_default();
 
@@ -372,6 +423,188 @@ async fn get_stats(State(state): State<Arc<WebState>>) -> Json<ApiResponse<serde
         data: Some(stats),
         error: None,
     })
+}
+
+#[derive(Serialize)]
+pub struct ExecuteResult {
+    pub processed: usize,
+    pub filtered: usize,
+    pub message: String,
+}
+
+async fn execute_filter(
+    Path(feed_id): Path<u64>,
+    State(state): State<Arc<WebState>>,
+) -> Json<ApiResponse<ExecuteResult>> {
+    // Load the rule set for this feed
+    let rule_sets = match load_rule_sets_from_dir(&state.rules_dir) {
+        Ok(sets) => sets,
+        Err(e) => {
+            error!("Failed to load rule sets: {}", e);
+            return Json(ApiResponse {
+                success: false,
+                data: None,
+                error: Some(format!("Failed to load rule sets: {}", e)),
+            });
+        }
+    };
+
+    // Find the rule set for this feed
+    let rule_set = match rule_sets.into_iter().find(|rs| rs.feed_id == feed_id) {
+        Some(rs) => rs,
+        None => {
+            return Json(ApiResponse {
+                success: false,
+                data: None,
+                error: Some(format!("No rule set found for feed {}", feed_id)),
+            });
+        }
+    };
+
+    if !rule_set.is_enabled() {
+        return Json(ApiResponse {
+            success: false,
+            data: None,
+            error: Some(format!("Rule set for feed {} is disabled", feed_id)),
+        });
+    }
+
+    // Fetch unread entries for this feed
+    let entries = match state
+        .miniflux_client
+        .get_unread_entries_for_feed(feed_id)
+        .await
+    {
+        Ok(entries) => entries,
+        Err(e) => {
+            error!("Failed to fetch entries for feed {}: {}", feed_id, e);
+            return Json(ApiResponse {
+                success: false,
+                data: None,
+                error: Some(format!("Failed to fetch entries: {}", e)),
+            });
+        }
+    };
+
+    if entries.is_empty() {
+        return Json(ApiResponse {
+            success: true,
+            data: Some(ExecuteResult {
+                processed: 0,
+                filtered: 0,
+                message: "No unread entries found for this feed".to_string(),
+            }),
+            error: None,
+        });
+    }
+
+    let mut entries_to_mark = Vec::new();
+
+    // Evaluate each entry against the rule set
+    for entry in &entries {
+        let matching_rules = rule_set.evaluate(entry);
+        if !matching_rules.is_empty() {
+            entries_to_mark.push(entry.id);
+        }
+    }
+
+    // Mark matching entries as read
+    if !entries_to_mark.is_empty() {
+        if let Err(e) = state
+            .miniflux_client
+            .mark_entries_as_read(entries_to_mark.clone())
+            .await
+        {
+            error!("Failed to mark entries as read for feed {}: {}", feed_id, e);
+            return Json(ApiResponse {
+                success: false,
+                data: None,
+                error: Some(format!("Failed to mark entries as read: {}", e)),
+            });
+        }
+    }
+
+    let message = if entries_to_mark.is_empty() {
+        format!(
+            "Processed {} entries, no entries matched the rules",
+            entries.len()
+        )
+    } else {
+        format!(
+            "Processed {} entries, marked {} as read",
+            entries.len(),
+            entries_to_mark.len()
+        )
+    };
+
+    Json(ApiResponse {
+        success: true,
+        data: Some(ExecuteResult {
+            processed: entries.len(),
+            filtered: entries_to_mark.len(),
+            message,
+        }),
+        error: None,
+    })
+}
+
+async fn get_logs(
+    State(state): State<Arc<WebState>>,
+) -> Json<ApiResponse<Vec<crate::logging::LogEntry>>> {
+    match &state.log_collector {
+        Some(collector) => {
+            let logs = collector.get_recent_logs(100); // Get last 100 logs
+            Json(ApiResponse {
+                success: true,
+                data: Some(logs),
+                error: None,
+            })
+        }
+        None => Json(ApiResponse {
+            success: false,
+            data: None,
+            error: Some("Logging not enabled".to_string()),
+        }),
+    }
+}
+
+async fn get_logs_for_feed(
+    Path(feed_id): Path<u64>,
+    State(state): State<Arc<WebState>>,
+) -> Json<ApiResponse<Vec<crate::logging::LogEntry>>> {
+    match &state.log_collector {
+        Some(collector) => {
+            let logs = collector.get_logs_for_feed(feed_id, Some(50)); // Get last 50 logs for this feed
+            Json(ApiResponse {
+                success: true,
+                data: Some(logs),
+                error: None,
+            })
+        }
+        None => Json(ApiResponse {
+            success: false,
+            data: None,
+            error: Some("Logging not enabled".to_string()),
+        }),
+    }
+}
+
+async fn clear_logs(State(state): State<Arc<WebState>>) -> Json<ApiResponse<String>> {
+    match &state.log_collector {
+        Some(collector) => {
+            collector.clear_logs();
+            Json(ApiResponse {
+                success: true,
+                data: Some("Logs cleared successfully".to_string()),
+                error: None,
+            })
+        }
+        None => Json(ApiResponse {
+            success: false,
+            data: None,
+            error: Some("Logging not enabled".to_string()),
+        }),
+    }
 }
 
 #[cfg(test)]
@@ -404,6 +637,7 @@ mod tests {
         let state = WebState {
             rules_dir,
             miniflux_client,
+            log_collector: None,
         };
 
         Router::new()
@@ -423,8 +657,7 @@ mod tests {
         // Create a rule set with a valid rule
         let rule_set = RuleSet {
             feed_id: 123,
-            feed_name: Some("Test Feed".to_string()),
-            enabled: Some(true),
+            enabled: true,
             rules: vec![Rule {
                 action: Action::MarkRead,
                 conditions: vec![Condition {

@@ -243,6 +243,12 @@ h1 {
     margin-bottom: 15px;
 }
 
+.rule-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
 .condition-row {
     display: flex;
     gap: 10px;
@@ -297,6 +303,21 @@ h1 {
     padding: 10px 20px;
 }
 
+.button-execute {
+    background: #fd7e14;
+    color: white;
+}
+
+.button-execute:hover {
+    background: #e8590c;
+}
+
+.button-execute:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .empty-rules {
     text-align: center;
     padding: 40px 20px;
@@ -309,4 +330,109 @@ h1 {
 
 .empty-rules p {
     margin: 0 0 15px 0;
+}
+
+/* Logs Styles */
+.logs-list {
+    background: #2d2d2d;
+    border-radius: 6px;
+    border: 1px solid #495057;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.log-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #495057;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+}
+
+.log-item:last-child {
+    border-bottom: none;
+}
+
+.log-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.log-timestamp {
+    color: #6c757d;
+    min-width: 150px;
+}
+
+.log-level {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 11px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.log-target {
+    color: #adb5bd;
+    font-size: 11px;
+}
+
+.log-message {
+    color: #e9ecef;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* Log level colors */
+.log-info .log-level {
+    background: #0d6efd;
+    color: white;
+}
+
+.log-debug .log-level {
+    background: #6c757d;
+    color: white;
+}
+
+.log-warn .log-level {
+    background: #fd7e14;
+    color: white;
+}
+
+.log-error .log-level {
+    background: #dc3545;
+    color: white;
+}
+
+.log-trace .log-level {
+    background: #6f42c1;
+    color: white;
+}
+
+.no-logs {
+    text-align: center;
+    padding: 40px 20px;
+    color: #adb5bd;
+    font-style: italic;
+}
+
+/* Scrollbar styling for logs */
+.logs-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.logs-list::-webkit-scrollbar-track {
+    background: #1e1e1e;
+    border-radius: 4px;
+}
+
+.logs-list::-webkit-scrollbar-thumb {
+    background: #495057;
+    border-radius: 4px;
+}
+
+.logs-list::-webkit-scrollbar-thumb:hover {
+    background: #6c757d;
 }

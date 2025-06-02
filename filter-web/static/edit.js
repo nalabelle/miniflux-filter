@@ -94,7 +94,7 @@ function populateEditor(ruleSet) {
   fetchAPI(`/feeds/${ruleSet.feed_id}`)
     .then((response) => {
       if (response.success && response.data) {
-        feedTitle.textContent = `Feed ${ruleSet.feed_id}: ${response.data.title}`;
+        feedTitle.textContent = `${response.data.title}`;
       }
     })
     .catch(() => {
@@ -259,6 +259,48 @@ async function saveRules() {
     }
   } catch (error) {
     alert("Failed to save rules: " + error.message);
+  }
+}
+
+// Execute filter now
+async function executeNow(buttonElement) {
+  if (!currentFeedId) {
+    alert("No feed ID available");
+    return;
+  }
+
+  // Get the button element - either passed as parameter or find it
+  const button = buttonElement || document.querySelector('button[onclick="executeNow()"]');
+
+  if (!button) {
+    alert("Could not find execute button");
+    return;
+  }
+
+  try {
+    // Show loading state
+    const originalText = button.textContent;
+    button.textContent = "Executing...";
+    button.disabled = true;
+
+    const response = await fetch(`/api/execute/${currentFeedId}`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      alert(`Filter executed successfully!\n\n${result.data.message}`);
+    } else {
+      alert("Failed to execute filter: " + result.error);
+    }
+  } catch (error) {
+    alert("Failed to execute filter: " + error.message);
+  } finally {
+    // Restore button state
+    button.textContent = "Execute Now";
+    button.disabled = false;
   }
 }
 

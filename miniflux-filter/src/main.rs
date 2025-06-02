@@ -4,7 +4,7 @@ use anyhow::Result;
 use filter_core::api::MinifluxClient;
 use filter_core::config::Config;
 use filter_core::filter::FilterEngine;
-use filter_web::start_web_server;
+use filter_web::{setup_web_logging, start_web_server};
 use std::env;
 use tokio::try_join;
 use tracing::{error, info};
@@ -16,8 +16,9 @@ async fn main() -> Result<()> {
     // Parse command line arguments
     let cli = Cli::parse_args();
 
-    // Initialize basic logging
-    init_logging(&cli.log_level);
+    // Initialize web logging with tracing
+    let (subscriber, log_collector) = setup_web_logging(1000, &cli.log_level);
+    tracing::subscriber::set_global_default(subscriber).expect("Failed to set tracing subscriber");
 
     info!("Starting miniflux-filter v{}", env!("CARGO_PKG_VERSION"));
 
@@ -89,7 +90,7 @@ async fn main() -> Result<()> {
 
         // Run both web server and filtering engine concurrently
         try_join!(
-            start_web_server(rules_dir, web_client, config.web_port),
+            start_web_server(rules_dir, web_client, config.web_port, Some(log_collector)),
             filter_engine.run()
         )?;
     } else {
@@ -98,17 +99,4 @@ async fn main() -> Result<()> {
     }
 
     Ok(())
-}
-
-fn init_logging(level: &str) {
-    let level = match level.to_lowercase().as_str() {
-        "trace" => tracing::Level::TRACE,
-        "debug" => tracing::Level::DEBUG,
-        "info" => tracing::Level::INFO,
-        "warn" => tracing::Level::WARN,
-        "error" => tracing::Level::ERROR,
-        _ => tracing::Level::INFO,
-    };
-
-    tracing_subscriber::fmt().with_max_level(level).init();
 }

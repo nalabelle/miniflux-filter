@@ -32,6 +32,7 @@
 
         <div class="actions">
           <button class="button button-primary" onclick="saveRules()">Save Rules</button>
+          <button class="button button-execute" onclick="executeNow(this)">Execute Now</button>
           <a href="./" class="button button-secondary">Cancel</a>
         </div>
       </div>
@@ -40,18 +41,17 @@
     <!-- Rule Template -->
     <template id="ruleTemplate">
       <div class="rule-card">
-        <div class="rule-header">
-          <h4>Rule</h4>
-          <button class="button button-danger button-small" onclick="removeRule(this)">
-            Remove
-          </button>
-        </div>
         <div class="rule-body">
           <h4>Conditions (all must match)</h4>
           <div class="conditions-container"></div>
-          <button class="button button-secondary button-small" onclick="addCondition(this)">
-            Add Condition
-          </button>
+          <div class="rule-actions">
+            <button class="button button-secondary button-small" onclick="addCondition(this)">
+              Add Condition
+            </button>
+            <button class="button button-danger button-small" onclick="removeRule(this)">
+              Remove
+            </button>
+          </div>
         </div>
       </div>
     </template>

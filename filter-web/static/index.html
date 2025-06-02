@@ -39,6 +39,19 @@
         <div id="feedsError" class="error" style="display: none"></div>
         <div id="combinedList" class="combined-list" style="display: none"></div>
       </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Recent Activity Logs</h2>
+          <div class="filter-controls">
+            <button class="button button-secondary" onclick="refreshLogs()">Refresh</button>
+            <button class="button button-danger" onclick="clearAllLogs()">Clear Logs</button>
+          </div>
+        </div>
+        <div id="logsLoading" class="loading">Loading...</div>
+        <div id="logsError" class="error" style="display: none"></div>
+        <div id="logsList" class="logs-list" style="display: none"></div>
+      </div>
     </div>
 
     <script src="lib/api.js"></script>

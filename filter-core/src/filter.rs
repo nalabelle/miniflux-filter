@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
 use std::collections::HashMap;
-use std::path::Path;
 use std::time::Duration;
 use tokio::time;
 use tracing::{debug, error, info};
@@ -183,63 +182,11 @@ pub struct FilterStats {
 
 impl FilterStats {
     pub fn print_summary(&self) {
-        info!("Filter Engine Statistics:");
-        info!("  Total rule sets: {}", self.total_rule_sets);
-        info!("  Enabled rule sets: {}", self.enabled_rule_sets);
-        info!("  Total rules: {}", self.total_rules);
-        info!("  Feeds with rules: {:?}", self.feeds_with_rules);
+        info!(
+            "Filter Engine Statistics:\n  Total rule sets: {}\n  Enabled rule sets: {}\n  Total rules: {}\n  Feeds with rules: {:?}",
+            self.total_rule_sets, self.enabled_rule_sets, self.total_rules, self.feeds_with_rules
+        );
     }
-}
-
-/// Create an example rule set file
-pub fn create_example_rule_file<P: AsRef<Path>>(
-    path: P,
-    feed_id: u64,
-    feed_name: &str,
-) -> Result<()> {
-    use crate::rules::{Action, Condition, Field, Operator, Rule, RuleSet};
-
-    let example_rule_set = RuleSet {
-        feed_id,
-        feed_name: Some(feed_name.to_string()),
-        enabled: Some(true),
-        rules: vec![
-            Rule {
-                action: Action::MarkRead,
-                conditions: vec![
-                    Condition {
-                        field: Field::Title,
-                        operator: Operator::Contains,
-                        value: "ad".to_string(),
-                    },
-                    Condition {
-                        field: Field::Title,
-                        operator: Operator::Contains,
-                        value: "advertisement".to_string(),
-                    },
-                ],
-            },
-            Rule {
-                action: Action::MarkRead,
-                conditions: vec![Condition {
-                    field: Field::Content,
-                    operator: Operator::Contains,
-                    value: "promotional".to_string(),
-                }],
-            },
-            Rule {
-                action: Action::MarkRead,
-                conditions: vec![Condition {
-                    field: Field::Author,
-                    operator: Operator::Equals,
-                    value: "spam-author".to_string(),
-                }],
-            },
-        ],
-    };
-
-    example_rule_set.save_to_file(path)?;
-    Ok(())
 }
 
 #[cfg(test)]
