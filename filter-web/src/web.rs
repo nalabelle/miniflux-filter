@@ -2,8 +2,8 @@ use anyhow::Result;
 use axum::{
     Router,
     extract::{Path, State},
-    http::StatusCode,
-    response::{Html, Json},
+    http::{header, StatusCode},
+    response::{Html, Json, Response},
     routing::{delete, get, post, put},
 };
 use serde::{Deserialize, Serialize};
@@ -11,7 +11,6 @@ use std::sync::Arc;
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
-use tower_http::services::ServeDir;
 use tracing::{error, info};
 
 use filter_core::api::MinifluxClient;
@@ -57,6 +56,11 @@ pub async fn start_web_server(
 
     let app = Router::new()
         .route("/", get(serve_index))
+        .route("/style.css", get(serve_css))
+        .route("/app.js", get(serve_app_js))
+        .route("/edit.js", get(serve_edit_js))
+        .route("/lib/api.js", get(serve_api_js))
+        .route("/edit.html", get(serve_edit_html))
         .route("/api/rules", get(list_rule_sets))
         .route("/api/rules", post(create_rule_set))
         .route("/api/rules/{feed_id}", get(get_rule_set))
@@ -64,8 +68,6 @@ pub async fn start_web_server(
         .route("/api/rules/{feed_id}", delete(delete_rule_set))
         .route("/api/feeds", get(list_feeds))
         .route("/api/stats", get(get_stats))
-        .nest_service("/static", ServeDir::new("filter-web/static"))
-        .fallback_service(ServeDir::new("filter-web/static"))
         .layer(ServiceBuilder::new().layer(CorsLayer::permissive()))
         .with_state(Arc::new(state));
 
@@ -83,11 +85,48 @@ pub async fn start_web_server(
     Ok(())
 }
 
-async fn serve_index() -> Html<String> {
-    match std::fs::read_to_string("filter-web/static/index.html") {
-        Ok(content) => Html(content),
-        Err(_) => Html("<h1>Error: Could not load index.html</h1>".to_string()),
-    }
+// Embedded static files
+const INDEX_HTML: &str = include_str!("../static/index.html");
+const EDIT_HTML: &str = include_str!("../static/edit.html");
+const STYLE_CSS: &str = include_str!("../static/style.css");
+const APP_JS: &str = include_str!("../static/app.js");
+const EDIT_JS: &str = include_str!("../static/edit.js");
+const API_JS: &str = include_str!("../static/lib/api.js");
+
+async fn serve_index() -> Html<&'static str> {
+    Html(INDEX_HTML)
+}
+
+async fn serve_edit_html() -> Html<&'static str> {
+    Html(EDIT_HTML)
+}
+
+async fn serve_css() -> Response {
+    Response::builder()
+        .header(header::CONTENT_TYPE, "text/css")
+        .body(STYLE_CSS.into())
+        .unwrap()
+}
+
+async fn serve_app_js() -> Response {
+    Response::builder()
+        .header(header::CONTENT_TYPE, "application/javascript")
+        .body(APP_JS.into())
+        .unwrap()
+}
+
+async fn serve_edit_js() -> Response {
+    Response::builder()
+        .header(header::CONTENT_TYPE, "application/javascript")
+        .body(EDIT_JS.into())
+        .unwrap()
+}
+
+async fn serve_api_js() -> Response {
+    Response::builder()
+        .header(header::CONTENT_TYPE, "application/javascript")
+        .body(API_JS.into())
+        .unwrap()
 }
 
 async fn list_rule_sets(State(state): State<Arc<WebState>>) -> Json<ApiResponse<Vec<RuleSet>>> {
