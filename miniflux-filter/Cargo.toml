@@ -1,0 +1,19 @@
+[package]
+name = "miniflux-filter"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "miniflux-filter"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+clap = { workspace = true }
+
+# Local dependencies
+filter-core = { path = "../filter-core" }
+filter-web = { path = "../filter-web" }

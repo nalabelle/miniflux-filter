@@ -1,0 +1,31 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+
+# Development tools
+.vscode/
+devbox.json
+devbox.lock
+
+# Tests
+tests/
+test-results/
+playwright-report/
+
+# Build artifacts
+target/
+Cargo.lock
+
+# Node.js (for tests)
+node_modules/
+package-lock.json
+
+# Runtime files
+rules/
+*.log
+
+# GitHub Actions
+.github/

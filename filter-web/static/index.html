@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Miniflux Filter Manager</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Miniflux Filter Manager</h1>
+
+      <div id="stats" class="stats">
+        <div class="stat-card">
+          <div class="stat-number" id="totalRuleSets">-</div>
+          <div class="stat-label">Total Rule Sets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="enabledRuleSets">-</div>
+          <div class="stat-label">Enabled Rule Sets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalRules">-</div>
+          <div class="stat-label">Total Rules</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Feeds & Rules</h2>
+          <div class="filter-controls">
+            <label class="checkbox-label">
+              <input type="checkbox" id="filterWithRules" checked />
+              Show only feeds with rules
+            </label>
+          </div>
+        </div>
+        <div id="feedsLoading" class="loading">Loading...</div>
+        <div id="feedsError" class="error" style="display: none"></div>
+        <div id="combinedList" class="combined-list" style="display: none"></div>
+      </div>
+    </div>
+
+    <script src="/static/lib/api.js"></script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

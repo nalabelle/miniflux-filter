@@ -1,0 +1,8 @@
+/target
+/rules
+
+.env
+*.env
+
+Cargo.lock
+devbox.lock

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Rules - Miniflux Filter Manager</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Edit Rules</h1>
+        <a href="/static/" class="button button-secondary">← Back to Dashboard</a>
+      </div>
+
+      <div id="loading" class="loading">Loading rule set...</div>
+      <div id="error" class="error" style="display: none"></div>
+
+      <div id="editor" style="display: none">
+        <div class="feed-info">
+          <h2 id="feedTitle">Feed Rules</h2>
+          <label class="checkbox-label"> <input type="checkbox" id="enabled" /> Enabled </label>
+        </div>
+
+        <div class="rules-section">
+          <div class="section-header">
+            <h3>Rules</h3>
+          </div>
+          <div id="rulesContainer"></div>
+          <button class="button button-primary" onclick="addRule()">Add Rule</button>
+        </div>
+
+        <div class="actions">
+          <button class="button button-primary" onclick="saveRules()">Save Rules</button>
+          <a href="/static/" class="button button-secondary">Cancel</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rule Template -->
+    <template id="ruleTemplate">
+      <div class="rule-card">
+        <div class="rule-header">
+          <h4>Rule</h4>
+          <button class="button button-danger button-small" onclick="removeRule(this)">
+            Remove
+          </button>
+        </div>
+        <div class="rule-body">
+          <h4>Conditions (all must match)</h4>
+          <div class="conditions-container"></div>
+          <button class="button button-secondary button-small" onclick="addCondition(this)">
+            Add Condition
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Condition Template -->
+    <template id="conditionTemplate">
+      <div class="condition-row">
+        <select class="condition-field">
+          <option value="title">Title</option>
+          <option value="content">Content</option>
+          <option value="author">Author</option>
+          <option value="url">URL</option>
+          <option value="tag">Tag</option>
+        </select>
+
+        <select class="condition-operator">
+          <option value="contains">Contains</option>
+          <option value="notcontains">Not Contains</option>
+          <option value="equals">Equals</option>
+          <option value="notequals">Not Equals</option>
+          <option value="startswith">Starts With</option>
+          <option value="endswith">Ends With</option>
+          <option value="matches">Regex Match</option>
+        </select>
+
+        <input type="text" class="condition-value" placeholder="Enter value or regex" />
+        <button class="button button-danger button-small" onclick="removeCondition(this)">×</button>
+      </div>
+    </template>
+
+    <script src="/static/edit.js"></script>
+  </body>
+</html>
