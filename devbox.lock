@@ -130,9 +130,9 @@
         }
       }
     },
-    "playwright-test@latest": {
-      "last_modified": "2025-05-16T20:19:48Z",
-      "resolved": "github:NixOS/nixpkgs/12a55407652e04dcf2309436eb06fef0d3713ef3#playwright-test",
+    "playwright-test@1.52.0": {
+      "last_modified": "2025-05-21T01:27:34Z",
+      "resolved": "github:NixOS/nixpkgs/f0d925b947cca0bbe7f2d25115cbaf021844aba7#playwright-test",
       "source": "devbox-search",
       "version": "1.52.0",
       "systems": {
@@ -178,7 +178,7 @@
         }
       }
     },
-    "rustup@latest": {
+    "rustup@1.28.2": {
       "last_modified": "2025-05-24T21:46:02Z",
       "plugin_version": "0.0.1",
       "resolved": "github:NixOS/nixpkgs/edb3633f9100d9277d1c9af245a4e9337a980c07#rustup",
