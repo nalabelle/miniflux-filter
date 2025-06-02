@@ -59,9 +59,9 @@ pub async fn start_web_server(
         .route("/", get(dashboard_handler))
         .route("/api/rules", get(list_rule_sets))
         .route("/api/rules", post(create_rule_set))
-        .route("/api/rules/:feed_id", get(get_rule_set))
-        .route("/api/rules/:feed_id", put(update_rule_set))
-        .route("/api/rules/:feed_id", delete(delete_rule_set))
+        .route("/api/rules/{feed_id}", get(get_rule_set))
+        .route("/api/rules/{feed_id}", put(update_rule_set))
+        .route("/api/rules/{feed_id}", delete(delete_rule_set))
         .route("/api/feeds", get(list_feeds))
         .route("/api/stats", get(get_stats))
         .nest_service("/static", ServeDir::new("filter-web/static"))
@@ -365,7 +365,7 @@ mod tests {
         };
 
         Router::new()
-            .route("/api/rules/:feed_id", put(update_rule_set))
+            .route("/api/rules/{feed_id}", put(update_rule_set))
             .with_state(Arc::new(state))
     }
 
