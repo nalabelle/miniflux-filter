@@ -158,7 +158,7 @@ async function deleteRules(feedId) {
 }
 
 function editRules(feedId) {
-  window.location.href = `/static/edit.html?feed=${feedId}`;
+  window.location.href = `edit.html?feed=${feedId}`;
 }
 
 function escapeHtml(text) {

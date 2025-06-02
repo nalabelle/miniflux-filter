@@ -3,7 +3,7 @@ use axum::{
     Router,
     extract::{Path, State},
     http::StatusCode,
-    response::Json,
+    response::{Html, Json},
     routing::{delete, get, post, put},
 };
 use serde::{Deserialize, Serialize};
@@ -56,7 +56,7 @@ pub async fn start_web_server(
     };
 
     let app = Router::new()
-        .route("/", get(dashboard_handler))
+        .route("/", get(serve_index))
         .route("/api/rules", get(list_rule_sets))
         .route("/api/rules", post(create_rule_set))
         .route("/api/rules/{feed_id}", get(get_rule_set))
@@ -83,8 +83,11 @@ pub async fn start_web_server(
     Ok(())
 }
 
-async fn dashboard_handler() -> axum::response::Redirect {
-    axum::response::Redirect::permanent("/static/index.html")
+async fn serve_index() -> Html<String> {
+    match std::fs::read_to_string("filter-web/static/index.html") {
+        Ok(content) => Html(content),
+        Err(_) => Html("<h1>Error: Could not load index.html</h1>".to_string()),
+    }
 }
 
 async fn list_rule_sets(State(state): State<Arc<WebState>>) -> Json<ApiResponse<Vec<RuleSet>>> {

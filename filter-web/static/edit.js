@@ -253,7 +253,7 @@ async function saveRules() {
 
     if (response.success) {
       alert("Rules saved successfully!");
-      window.location.href = "/static/";
+      window.location.href = "./";
     } else {
       alert("Failed to save rules: " + response.error);
     }
