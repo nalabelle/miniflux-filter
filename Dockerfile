@@ -1,5 +1,5 @@
 # Build stage
-FROM rust:1.87-slim@sha256:437507c3e719e4f968033b88d851ffa9f5aceeb2dcc2482cc6cb7647811a55eb AS builder
+FROM rust:1.88-slim@sha256:d62f2139b1f523b4b048c59af6c5e8f2cbf6ab04e91ff87b2b9afb3fab3b930a AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
