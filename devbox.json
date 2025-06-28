@@ -3,7 +3,7 @@
   "packages": [
     "rustup@1.28.2",
     "libiconv@latest",
-    "nodejs@24.1.0",
+    "nodejs@24.3.0",
     "playwright-test@1.52.0"
   ],
   "env": {
