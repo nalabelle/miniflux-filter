@@ -3,16 +3,12 @@
   "packages": [
     "rustup@1.28.2",
     "libiconv@latest",
-    "nodejs@24.3.0",
-    "playwright-test@1.52.0"
+    "nodejs@24.1.0",
+    "playwright-test@1.52.0",
+    "pre-commit@4.2.0",
+    "shellcheck@0.10.0"
   ],
   "env": {
     "DEVBOX_COREPACK_ENABLED": "true"
-  },
-  "shell": {
-    "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
-    "scripts": {
-      "test": ["echo \"Error: no test specified\" && exit 1"]
-    }
   }
 }
