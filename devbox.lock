@@ -38,6 +38,14 @@
             }
           ],
           "store_path": "/nix/store/kjw10j3vv528lmps6l66kc97fxhg5hfy-libiconv-109"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "path": "/tmp/containerbase/cache/nix/store/279bpqancvb18sbv0klbda9pvp6yz8l0-glibc-iconv-2.40",
+              "default": true
+            }
+          ]
         }
       }
     },
@@ -122,51 +130,51 @@
         }
       }
     },
-    "playwright-test@1.52.0": {
-      "last_modified": "2025-06-22T15:15:55Z",
-      "resolved": "github:NixOS/nixpkgs/3078b9a9e75f1790e6d6ef9955fdc6a2d1740cc6#playwright-test",
+    "playwright-test@1.53.1": {
+      "last_modified": "2025-07-02T16:07:57Z",
+      "resolved": "github:NixOS/nixpkgs/b32441ec0fae600e647cf4e6d6c245286a583106#playwright-test",
       "source": "devbox-search",
-      "version": "1.52.0",
+      "version": "1.53.1",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/244lf8qlvr1jma8m0c7b011fb1lh4755-playwright-test-1.52.0",
+              "path": "/nix/store/5h2jjdrsaawg4vravjd5dn52r3cj9bk1-playwright-test-1.53.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/244lf8qlvr1jma8m0c7b011fb1lh4755-playwright-test-1.52.0"
+          "store_path": "/nix/store/5h2jjdrsaawg4vravjd5dn52r3cj9bk1-playwright-test-1.53.1"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/l1k3w44vij5i7d6nh0zsjwz96jysqljh-playwright-test-1.52.0",
+              "path": "/nix/store/mi315yfhdj6k6qq2svz16mnkpc32jgx6-playwright-test-1.53.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/l1k3w44vij5i7d6nh0zsjwz96jysqljh-playwright-test-1.52.0"
+          "store_path": "/nix/store/mi315yfhdj6k6qq2svz16mnkpc32jgx6-playwright-test-1.53.1"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/vpjx943krz0gr17mmb81phsqjzdis4nr-playwright-test-1.52.0",
+              "path": "/nix/store/kn94q7c6jxg5cp1m3wdnl4xgg8n5nckj-playwright-test-1.53.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/vpjx943krz0gr17mmb81phsqjzdis4nr-playwright-test-1.52.0"
+          "store_path": "/nix/store/kn94q7c6jxg5cp1m3wdnl4xgg8n5nckj-playwright-test-1.53.1"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/hnh658vfdgcmw37g01wfp6z7cjm0ic16-playwright-test-1.52.0",
+              "path": "/nix/store/j1xr7gpz34ylpxh0w8087izsdg60gfbx-playwright-test-1.53.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/hnh658vfdgcmw37g01wfp6z7cjm0ic16-playwright-test-1.52.0"
+          "store_path": "/nix/store/j1xr7gpz34ylpxh0w8087izsdg60gfbx-playwright-test-1.53.1"
         }
       }
     },
