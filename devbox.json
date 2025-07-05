@@ -4,7 +4,7 @@
     "rustup@1.28.2",
     "libiconv@latest",
     "nodejs@24.1.0",
-    "playwright-test@1.52.0",
+    "playwright-test@1.53.1",
     "pre-commit@4.2.0",
     "shellcheck@0.10.0"
   ],
