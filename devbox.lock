@@ -130,51 +130,51 @@
         }
       }
     },
-    "playwright-test@1.53.1": {
-      "last_modified": "2025-07-02T16:07:57Z",
-      "resolved": "github:NixOS/nixpkgs/b32441ec0fae600e647cf4e6d6c245286a583106#playwright-test",
+    "playwright-test@1.54.1": {
+      "last_modified": "2025-07-24T23:24:55Z",
+      "resolved": "github:NixOS/nixpkgs/0d00f23f023b7215b3f1035adb5247c8ec180dbc#playwright-test",
       "source": "devbox-search",
-      "version": "1.53.1",
+      "version": "1.54.1",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/5h2jjdrsaawg4vravjd5dn52r3cj9bk1-playwright-test-1.53.1",
+              "path": "/nix/store/av18v4napasnx5jvj6snli26cskkiy5a-playwright-test-1.54.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/5h2jjdrsaawg4vravjd5dn52r3cj9bk1-playwright-test-1.53.1"
+          "store_path": "/nix/store/av18v4napasnx5jvj6snli26cskkiy5a-playwright-test-1.54.1"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/mi315yfhdj6k6qq2svz16mnkpc32jgx6-playwright-test-1.53.1",
+              "path": "/nix/store/2jfm794iddp0flaj5b8fpdl68np8wnif-playwright-test-1.54.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/mi315yfhdj6k6qq2svz16mnkpc32jgx6-playwright-test-1.53.1"
+          "store_path": "/nix/store/2jfm794iddp0flaj5b8fpdl68np8wnif-playwright-test-1.54.1"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/kn94q7c6jxg5cp1m3wdnl4xgg8n5nckj-playwright-test-1.53.1",
+              "path": "/nix/store/dr9hw38yfa1d3z0pdwkkfrld2rpdn35g-playwright-test-1.54.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/kn94q7c6jxg5cp1m3wdnl4xgg8n5nckj-playwright-test-1.53.1"
+          "store_path": "/nix/store/dr9hw38yfa1d3z0pdwkkfrld2rpdn35g-playwright-test-1.54.1"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/j1xr7gpz34ylpxh0w8087izsdg60gfbx-playwright-test-1.53.1",
+              "path": "/nix/store/d7nj0y597kwrjhzaw0cdvfrl1r8b3157-playwright-test-1.54.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/j1xr7gpz34ylpxh0w8087izsdg60gfbx-playwright-test-1.53.1"
+          "store_path": "/nix/store/d7nj0y597kwrjhzaw0cdvfrl1r8b3157-playwright-test-1.54.1"
         }
       }
     },
