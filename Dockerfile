@@ -1,5 +1,5 @@
 # Build stage
-FROM rust:1.89-slim@sha256:21e2ac30e72a6d5b6d667b573eadad0578be9a5a99bac0b2b99b3d37795f90f9 AS builder
+FROM rust:1.89-slim@sha256:6c828d9865870a3bc8c02919d73803df22cac59b583d8f2cb30a296abe64748f AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
