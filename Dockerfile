@@ -1,5 +1,5 @@
 # Build stage
-FROM rust:1.89-slim@sha256:e556a015ecb064ca6b3b74bceb36a54deaf88afbe2956b8fe3e445da446d9cf8 AS builder
+FROM rust:1.90-slim@sha256:40d4ee109c7e740b3a242f20cc3b5790af9c725828b86a458765f192391a6a4a AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -21,7 +21,7 @@ COPY miniflux-filter/ ./miniflux-filter/
 RUN cargo build --release --bin miniflux-filter
 
 # Runtime stage
-FROM debian:bookworm-slim@sha256:b1a741487078b369e78119849663d7f1a5341ef2768798f7b7406c4240f86aef
+FROM debian:bookworm-slim@sha256:df52e55e3361a81ac1bead266f3373ee55d29aa50cf0975d440c2be3483d8ed3
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
