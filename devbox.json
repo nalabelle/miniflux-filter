@@ -3,9 +3,9 @@
   "packages": [
     "rustup@1.28.2",
     "libiconv@latest",
-    "nodejs@24.5.0",
+    "nodejs@24.8.0",
     "playwright-test@1.54.1",
-    "pre-commit@4.2.0",
+    "pre-commit@4.3.0",
     "shellcheck@0.10.0"
   ],
   "env": {
